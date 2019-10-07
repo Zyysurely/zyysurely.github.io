@@ -17,9 +17,11 @@
 <meta property="og:description" content="RL_GreedySnake 最近一段时间学习了强化学习的相关知识，在兴趣的驱使下，当然实践也是巩固学到知识的第一选择。选了一个相对比较简单的小游戏—-贪吃蛇，整个代码正在不断得更新和加强过程中。">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/tensorboard.jpg">
-<meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/30_t2.png">
+<meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/res1.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/res.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/50_t2.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/example.gif">
-<meta property="og:updated_time" content="2019-10-04T12:07:39.013Z">
+<meta property="og:updated_time" content="2019-10-06T04:33:00.988Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GreedySnake">
 <meta name="twitter:description" content="RL_GreedySnake 最近一段时间学习了强化学习的相关知识，在兴趣的驱使下，当然实践也是巩固学到知识的第一选择。选了一个相对比较简单的小游戏—-贪吃蛇，整个代码正在不断得更新和加强过程中。">
@@ -193,23 +195,35 @@
 </ul>
 <p><img src="/2019/09/30/greedy-snake/tensorboard.jpg" alt="avatar"></p>
 <ul>
-<li>关于DQN的原理次数就不再赘述了，下面主要介绍对图像卷积操作：</li>
+<li>关于DQN的原理此处就不再赘述了，下面主要介绍对图像卷积操作：</li>
 </ul>
 <ol>
-<li>为了使</li>
+<li>为了使图像更方便处理，首先在pre_process中对画面进行裁剪的降低复杂度的处理，包括<code>(1)将RGB三通道的画面转成一通道的灰度图</code>以及<code>(2)将非黑色像素都变成白色</code>，但是为了突出显示蛇头和食物的区别，下面的实验中我主要使用的是（1）的处理方式，而非（1）+（2）的处理方式</li>
+</ol>
+<p><img src="/2019/09/30/greedy-snake/res1.jpg" alt="avatar"><br><img src="/2019/09/30/greedy-snake/res.jpg" alt="hhhhh" title="llll"></p>
+<ol start="2">
+<li><p>输入cnn的observation是80<em>80</em>1，整个卷积过程如下图所示：</p>
+</li>
+<li><p>Reward的设计如下表所示：</p>
+</li>
 </ol>
 <h2 id="Update-Logs"><a href="#Update-Logs" class="headerlink" title="Update Logs"></a>Update Logs</h2><ul>
-<li>2019/09/29<blockquote>
+<li><p>2019/09/29</p>
+<blockquote>
 <p>规则是四周都是墙，撞上或者咬到尾巴都是over，食物在吃掉之后会随机生成。基于CNN和DQN完成了初步训练模型，执行命令是：                </p>
 </blockquote>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 greedysnake_run.py</span><br></pre></td></tr></table></figure>
-
+</li>
+<li><p>2019/10/05</p>
+<blockquote>
+<p>改进了reward机制和参数</p>
+</blockquote>
 </li>
 </ul>
-<blockquote>
-<p>目前实验中跑了30w步，存活时间如下图所示:</p>
+<h2 id="Cases"><a href="#Cases" class="headerlink" title="Cases"></a>Cases</h2><blockquote>
+<p>目前实验中跑了50w步，存活步数如下图所示:</p>
 </blockquote>
-<p><img src="/2019/09/30/greedy-snake/30_t2.png" alt="avatar"></p>
+<p><img src="/2019/09/30/greedy-snake/50_t2.png" alt="avatar"></p>
 <p><img src="/2019/09/30/greedy-snake/example.gif" alt="avatar"></p>
 
       
@@ -441,6 +455,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">RL</a>
               </li>
              
@@ -450,14 +472,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Golang</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
             
             <div class="clearfix"></div>
