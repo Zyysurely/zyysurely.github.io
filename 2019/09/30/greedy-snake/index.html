@@ -21,7 +21,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/res.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/50_t2.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/example.gif">
-<meta property="og:updated_time" content="2019-10-06T04:33:00.988Z">
+<meta property="og:updated_time" content="2019-10-14T16:31:12.080Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GreedySnake">
 <meta name="twitter:description" content="RL_GreedySnake 最近一段时间学习了强化学习的相关知识，在兴趣的驱使下，当然实践也是巩固学到知识的第一选择。选了一个相对比较简单的小游戏—-贪吃蛇，整个代码正在不断得更新和加强过程中。">
@@ -195,18 +195,18 @@
 </ul>
 <p><img src="/2019/09/30/greedy-snake/tensorboard.jpg" alt="avatar"></p>
 <ul>
-<li>关于DQN的原理此处就不再赘述了，下面主要介绍对图像卷积操作：</li>
-</ul>
-<ol>
-<li>为了使图像更方便处理，首先在pre_process中对画面进行裁剪的降低复杂度的处理，包括<code>(1)将RGB三通道的画面转成一通道的灰度图</code>以及<code>(2)将非黑色像素都变成白色</code>，但是为了突出显示蛇头和食物的区别，下面的实验中我主要使用的是（1）的处理方式，而非（1）+（2）的处理方式</li>
-</ol>
-<p><img src="/2019/09/30/greedy-snake/res1.jpg" alt="avatar"><br><img src="/2019/09/30/greedy-snake/res.jpg" alt="hhhhh" title="llll"></p>
-<ol start="2">
+<li><p>关于DQN的原理此处就不再赘述了，下面主要介绍对图像卷积操作：</p>
+<ul>
+<li><p>为了使图像更方便处理，首先在pre_process中对画面进行裁剪的降低复杂度的处理，包括<code>(1)将RGB三通道的画面转成一通道的灰度图</code>以及<code>(2)将非黑色像素都变成白色</code>，但是为了突出显示蛇头和食物的区别，下面的实验中我主要使用的是（1）的处理方式，而非（1）+（2）的处理方式</p>
+<p><img src="/2019/09/30/greedy-snake/res1.jpg" alt="avatar"> <img src="/2019/09/30/greedy-snake/res.jpg" alt="hhhhh" title="llll"></p>
+</li>
 <li><p>输入cnn的observation是80<em>80</em>1，整个卷积过程如下图所示：</p>
 </li>
 <li><p>Reward的设计如下表所示：</p>
 </li>
-</ol>
+</ul>
+</li>
+</ul>
 <h2 id="Update-Logs"><a href="#Update-Logs" class="headerlink" title="Update Logs"></a>Update Logs</h2><ul>
 <li><p>2019/09/29</p>
 <blockquote>
@@ -455,19 +455,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">RL</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
