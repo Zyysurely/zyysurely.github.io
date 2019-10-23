@@ -8,23 +8,23 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>NSQ | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代码">
+  <meta name="description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="NSQ">
 <meta property="og:url" content="http://yoursite.com/2019/02/05/nsq源码/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代码">
+<meta property="og:description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/nsq.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/nsq%E6%9E%B6%E6%9E%84.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/svc.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/svc_detail.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/svc2.png">
-<meta property="og:updated_time" content="2019-10-14T16:04:52.761Z">
+<meta property="og:updated_time" content="2019-10-15T16:22:36.822Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NSQ">
-<meta name="twitter:description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代码">
+<meta name="twitter:description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
 <meta name="twitter:image" content="http://yoursite.com/2019/02/05/nsq源码/nsq.png">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
@@ -178,26 +178,30 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）"><a href="#nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）" class="headerlink" title="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）"></a>nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）</h1><blockquote>
-<p><em>因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代码</em></p>
+<p><em>因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表</em></p>
 </blockquote>
 <a id="more"></a>
 
+<h3 id="nsq功能：消息队列"><a href="#nsq功能：消息队列" class="headerlink" title="nsq功能：消息队列"></a>nsq功能：消息队列</h3><blockquote>
+<p>nsq是golang实现的mq，轻量，性能高效</p>
+</blockquote>
 <p><img src="/2019/02/05/nsq源码/nsq.png" alt="avatar"></p>
 <p><img src="/2019/02/05/nsq源码/nsq%E6%9E%B6%E6%9E%84.png" alt="avatar"></p>
 <p><code>下面将介绍整个源码中比较推荐借鉴使用的框架和golang的写法，源码的闪光点</code></p>
-<h3 id="Star-1-SVC框架（安全优雅退出程序，否则kill后也不会执行defer操作，会丢失一些关键的日志）"><a href="#Star-1-SVC框架（安全优雅退出程序，否则kill后也不会执行defer操作，会丢失一些关键的日志）" class="headerlink" title="Star 1: SVC框架（安全优雅退出程序，否则kill后也不会执行defer操作，会丢失一些关键的日志）"></a>Star 1: SVC框架（安全优雅退出程序，否则kill后也不会执行defer操作，会丢失一些关键的日志）</h3><blockquote>
-<p>同样在nsq中，nsqd等部分的运行都是SVC框架</p>
-</blockquote>
-<ol>
-<li><p>nsq源码中是通过svc的一个封装包，通过调用run的完成，如下图所示：<br> <img src="/2019/02/05/nsq源码/svc.png" alt="avatar"></p>
+<h3 id="Star-1-SVC框架（安全优雅退出程序，否则kill后也不会执行defer操作，会丢失一些关键的日志）"><a href="#Star-1-SVC框架（安全优雅退出程序，否则kill后也不会执行defer操作，会丢失一些关键的日志）" class="headerlink" title="Star 1: SVC框架（安全优雅退出程序，否则kill后也不会执行defer操作，会丢失一些关键的日志）"></a>Star 1: SVC框架（安全优雅退出程序，否则kill后也不会执行defer操作，会丢失一些关键的日志）</h3><ul>
+<li><p>同样在nsq中，nsqd等部分的运行都是SVC框架</p>
+<ul>
+<li><p>nsq源码中是通过svc的一个封装包，通过调用run的完成，如下图所示：<br><img src="/2019/02/05/nsq源码/svc.png" alt="avatar"></p>
 <blockquote>
 <p>同样地，如下所示，program也是实现了svc包中的接口，init是系统的初始化，start包括主要的业务逻辑，stop包括程序退出时的业务。</p>
 </blockquote>
-<p> <img src="/2019/02/05/nsq源码/svc_detail.png" alt="avatar"></p>
+<p><img src="/2019/02/05/nsq源码/svc_detail.png" alt="avatar"></p>
+</li>
+</ul>
 </li>
 <li><p>进一步地，了解SVC内部的实现:<br><img src="/2019/02/05/nsq源码/svc2.png" alt="avatar"></p>
 </li>
-</ol>
+</ul>
 
       
       
@@ -416,14 +420,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">RL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
               </li>
              
@@ -433,6 +429,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Golang</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">RL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
             
             <div class="clearfix"></div>

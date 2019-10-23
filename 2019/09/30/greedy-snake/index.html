@@ -21,7 +21,7 @@
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/res.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/50_t2.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/example.gif">
-<meta property="og:updated_time" content="2019-10-14T16:31:12.080Z">
+<meta property="og:updated_time" content="2019-10-23T08:45:59.761Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GreedySnake">
 <meta name="twitter:description" content="RL_GreedySnake 最近一段时间学习了强化学习的相关知识，在兴趣的驱使下，当然实践也是巩固学到知识的第一选择。选了一个相对比较简单的小游戏—-贪吃蛇，整个代码正在不断得更新和加强过程中。">
@@ -187,24 +187,83 @@
 <li>tensorflow</li>
 <li>pygame</li>
 <li>opencv-python</li>
-<li>matplotlib<br>代码见git —— <a href="https://github.com/Zyysurely/RL_GreedySnake" target="_blank"> [ RL_GreedySnake ]</a></li>
+<li>matplotlib</li>
+<li>代码见git —— <a href="https://github.com/Zyysurely/RL_GreedySnake" target="_blank"> [ RL_GreedySnake ]</a></li>
 </ul>
 </blockquote>
 <h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ul>
 <li><strong>整个网络的通过tensorboard的一览图如下所示：</strong></li>
 </ul>
-<p><img src="/2019/09/30/greedy-snake/tensorboard.jpg" alt="avatar"></p>
+<div align="center">
+<img width="70%" height="70%" src="/2019/09/30/greedy-snake/tensorboard.jpg">
+</div>
+
 <ul>
 <li><p>关于DQN的原理此处就不再赘述了，下面主要介绍对图像卷积操作：</p>
 <ul>
-<li><p>为了使图像更方便处理，首先在pre_process中对画面进行裁剪的降低复杂度的处理，包括<code>(1)将RGB三通道的画面转成一通道的灰度图</code>以及<code>(2)将非黑色像素都变成白色</code>，但是为了突出显示蛇头和食物的区别，下面的实验中我主要使用的是（1）的处理方式，而非（1）+（2）的处理方式</p>
-<p><img src="/2019/09/30/greedy-snake/res1.jpg" alt="avatar"> <img src="/2019/09/30/greedy-snake/res.jpg" alt="hhhhh" title="llll"></p>
+<li><p>为了使图像更方便处理，首先在pre_process中对画面进行裁剪的降低复杂度的处理，包括<code>(1)将RGB三通道的画面转成一通道的灰度图</code>以及<code>(2)将非黑色像素都变成白色</code>，但是为了突出显示蛇头和食物的区别，下面的实验中我主要使用的是（a）的处理方式，而非（a）+（b）的处理方式</p>
+<div align="center">
+<img src="/2019/09/30/greedy-snake/res1.jpg">      <img src="/2019/09/30/greedy-snake/res.jpg">
+</div>
+<div align="center">
+<div>(a) 灰度图处理 (b) 转换非黑色像素</div>
+</div>
 </li>
-<li><p>输入cnn的observation是80<em>80</em>1，整个卷积过程如下图所示：</p>
-</li>
-<li><p>Reward的设计如下表所示：</p>
+<li><p>输入cnn的observation是80*80*1，整个卷积过程如下图所示：</p>
 </li>
 </ul>
+</li>
+<li><p>训练思路：</p>
+<ul>
+<li><p>action的长度：3</p>
+<table>
+<thead>
+<tr>
+<th>action_index</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>+1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>-1</td>
+</tr>
+</tbody></table>
+</li>
+</ul>
+</li>
+<li><p>Reward的设计如下表所示：</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Reward</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>eat food</td>
+<td>+1</td>
+</tr>
+<tr>
+<td>hit wall</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>hit body</td>
+<td>-1</td>
+</tr>
+<tr>
+<td>others</td>
+<td>+ 0.1</td>
+</tr>
+</tbody></table>
 </li>
 </ul>
 <h2 id="Update-Logs"><a href="#Update-Logs" class="headerlink" title="Update Logs"></a>Update Logs</h2><ul>
@@ -455,14 +514,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">RL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
               </li>
              
@@ -472,6 +523,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Golang</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">RL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
             
             <div class="clearfix"></div>
