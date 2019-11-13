@@ -21,7 +21,9 @@
 <meta property="og:image" content="http://yoursite.com/2019/02/02/gopath/1.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/02/gopath/2.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/02/gopath/vendor.png">
-<meta property="og:updated_time" content="2019-11-13T08:09:28.538Z">
+<meta property="og:image" content="http://yoursite.com/2019/02/02/gopath/mod.png">
+<meta property="og:image" content="http://yoursite.com/2019/02/02/gopath/vgo.png">
+<meta property="og:updated_time" content="2019-11-13T10:39:11.503Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GOPATH &amp;&amp; GOVENDOR &amp;&amp; GOMODULE">
 <meta name="twitter:description" content="GoPath and Golang包管理（vendor &amp;amp;&amp;amp; module） 一开始进行golang编程的时候，总会遇到gopath的问题，即出现不同的包的导入和管理问题，除了对gopath这个环境变量进行分析之外，本文也进一步对于golang的包管理问题进行一个总结和深入。">
@@ -181,6 +183,15 @@
 <p><em>一开始进行golang编程的时候，总会遇到gopath的问题，即出现不同的包的导入和管理问题，除了对gopath这个环境变量进行分析之外，本文也进一步对于golang的包管理问题进行一个总结和深入。</em></p>
 </blockquote>
 <a id="more"></a>
+
+<ul>
+<li><a href="#gopath-and-golang包管理vendor--module">GoPath and Golang包管理（vendor &amp;&amp; module）</a> <ul>
+<li><a href="#go-path环境变量设置分析">Go Path（环境变量设置分析）</a></li>
+<li><a href="#go-vendorgolang-包管理">Go Vendor（golang 包管理）</a></li>
+<li><a href="#go-module忘记gopath推荐">Go Module（忘记GOPATH，推荐！！！！！）</a></li>
+</ul>
+</li>
+</ul>
 <hr>
 <ul>
 <li>研究环境：<ul>
@@ -246,14 +257,47 @@
 <p><strong>Govendor还是无法脱离gopath的，只是版本管理的初步解决方式</strong></p>
 <hr>
 <h2 id="Go-Module（忘记GOPATH，推荐！！！！！）"><a href="#Go-Module（忘记GOPATH，推荐！！！！！）" class="headerlink" title="Go Module（忘记GOPATH，推荐！！！！！）"></a>Go Module（忘记GOPATH，推荐！！！！！）</h2><blockquote>
-<p>从 Go 1.11 开始，Go 允许在 <code>$GOPATH/src</code> 外的任何目录下使用 <code>go.mod</code> 创建项目。在 $GOPATH/src 中，为了兼容性，Go 命令仍然在旧的 GOPATH 模式下运行</p>
+<p>从 Go 1.11 开始，Go 允许在 <code>$GOPATH/src</code> 外的任何目录下使用 <code>go.mod</code> 创建项目。在 $GOPATH/src 中，为了兼容性，Go 命令仍然在旧的 GOPATH 模式下运行。<br>官方文档 —— <a href="https://github.com/golang/go/wiki/Modules" target="_blank"> [ Go Module ]</a></p>
 </blockquote>
 <ul>
-<li>开启go module<ul>
-<li>golang1.11</li>
+<li><p>在开启go module的学习之前，需要配合<code>GOPROXY</code>，这是一个下载代理，为了下载那些特别慢甚至被墙的第三方包，官网的介绍是<code>A Global Proxy for Go Modules</code></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export GOPROXY=https://goproxy.io</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>开启go module</p>
+<ul>
+<li>golang1.11，需要开启GO11MODULE=on，并且保证目录不在GOPATH中</li>
+<li>golang1.12，只需保证目录不在GOPATH中</li>
 </ul>
 </li>
 </ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">go mod init &#123;&#123; project &#125;&#125;   // 初始化</span><br><span class="line">go mod download             // 下载依赖包</span><br><span class="line">go mod tidy                 // 下载必须模块，移除不用的模块</span><br><span class="line">go mod vendor               // 返回vendor版本的解决方法，不用cache中</span><br><span class="line">go run和go build也会自动下载依赖，更新go.mod</span><br></pre></td></tr></table></figure>
+
+<p>go.mod的一般形式如下所示：</p>
+<div align="center">
+<img width="70%" height="80%" src="/2019/02/02/gopath/mod.png">
+</div>
+目录下的另一个文件go.sum用于保存所有的依赖项的哈希摘要校验之，用于验证缓存的依赖项是否满足模块要求
+
+<blockquote>
+<p>如上图所示的go.mod，则项目下的import为：</p>
+</blockquote>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> project/models/model</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>replace功能（当有些包被高墙限制住的时候）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">replace my/example/pkg v0.0.0 =&gt; github.com/example/pkg v0.0.0</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改包的版本</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go mod edit -require="github.com/chromedp/chromedp@v0.1.0"</span><br><span class="line">或者直接go get ...@..., 也就会修改go.mod</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>一般开发时可以直接使用goland中的vgo</p>
+<div align="center">
+<img width="70%" height="80%" src="/2019/02/02/gopath/vgo.png">
+</div>
+
+</li>
+</ul>
+<p><strong>查看$GOPATH/pkg/mod里面的文件，mod做了一件类似maven的事把所有包都打上了版本号。可以很明显比较得出go module的优越性，所以吧，用go module吧，买不了吃亏买不了上当。over</strong></p>
 
       
       
@@ -362,11 +406,11 @@
   
 <nav id="article-nav">
   
-    <a href="/2019/02/05/nsq源码/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/02/05/context/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          NSQ
+          golang的context深入理解
         
       </div>
     </a>
@@ -493,6 +537,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
               </li>
              
@@ -501,19 +553,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">RL</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
             
             <div class="clearfix"></div>
