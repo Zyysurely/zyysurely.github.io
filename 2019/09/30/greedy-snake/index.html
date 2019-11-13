@@ -19,9 +19,10 @@
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/tensorboard.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/res1.jpg">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/res.jpg">
+<meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/distance.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/50_t2.png">
 <meta property="og:image" content="http://yoursite.com/2019/09/30/greedy-snake/example.gif">
-<meta property="og:updated_time" content="2019-10-23T08:45:59.761Z">
+<meta property="og:updated_time" content="2019-11-05T04:27:06.714Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="GreedySnake">
 <meta name="twitter:description" content="RL_GreedySnake 最近一段时间学习了强化学习的相关知识，在兴趣的驱使下，当然实践也是巩固学到知识的第一选择。选了一个相对比较简单的小游戏—-贪吃蛇，整个代码正在不断得更新和加强过程中。">
@@ -215,7 +216,7 @@
 </li>
 <li><p>训练思路：</p>
 <ul>
-<li><p>action的长度：3</p>
+<li><p>action的长度：3（不能与当前前进方向相反）</p>
 <table>
 <thead>
 <tr>
@@ -225,21 +226,31 @@
 </thead>
 <tbody><tr>
 <td>0</td>
-<td>+1</td>
+<td>保持原方向</td>
 </tr>
 <tr>
 <td>1</td>
-<td>-1</td>
+<td>原方向左边</td>
 </tr>
 <tr>
 <td>2</td>
-<td>-1</td>
+<td>原方向右边</td>
 </tr>
 </tbody></table>
 </li>
+<li></li>
 </ul>
 </li>
 <li><p>Reward的设计如下表所示：</p>
+<blockquote>
+<p>没有吃到食物并没有死时，reward计算考虑离食物的距离，<br>  reward =<br>  如下图所示：</p>
+  <div align="center">
+  <img src="/2019/09/30/greedy-snake/distance.png">
+  </div>
+</blockquote>
+<blockquote>
+<p>整体的reward设计如下表所示</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -393,8 +404,8 @@
 <nav id="article-nav">
   
   
-    <a href="/2019/02/05/nsq源码/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">NSQ</div>
+    <a href="/2019/02/05/gopath/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">GoPath与golang包管理</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -514,15 +525,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
               </li>
              
               <li class="article-tag-list-item">
