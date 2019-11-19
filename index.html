@@ -255,7 +255,16 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="golang的逃逸分析"><a href="#golang的逃逸分析" class="headerlink" title="golang的逃逸分析"></a>golang的逃逸分析</h1>
+        <h1 id="golang的逃逸分析"><a href="#golang的逃逸分析" class="headerlink" title="golang的逃逸分析"></a>golang的逃逸分析</h1><blockquote>
+<p><em>顺便在分析中深入理解了golang的内存模型</em></p>
+</blockquote>
+<p>在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。<br>栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。</p>
+<ul>
+<li><p>在golang中，在一定程度上消除了堆和栈的区别，在编译的时候编译器会根据逃逸分析来决定一个对象放在堆上还是栈上，不逃逸的对象直接放在栈上，加快分配，并且减少gc的压力</p>
+</li>
+<li></li>
+</ul>
+
       
       
       
@@ -283,85 +292,6 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2019/04/01/逃逸分析/">Read More >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-  
-    <article id="post-nsq源码" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2019/02/05/nsq源码/">NSQ</a>
-    </h1>
-  
-
-        
-        <a href="/2019/02/05/nsq源码/" class="archive-article-date">
-  	<time datetime="2019-02-04T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-05</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h1 id="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）"><a href="#nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）" class="headerlink" title="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）"></a>nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）</h1><blockquote>
-<p><em>因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表</em></p>
-</blockquote>
-        
-      
-      
-      
-        <div class="declare" hidden="hidden"></div>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Golang</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2019/02/05/nsq源码/">Read More >></a>
         </p>
       
 
@@ -438,6 +368,85 @@
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2019/02/05/context/">Read More >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+    <article id="post-nsq源码" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/02/05/nsq源码/">NSQ</a>
+    </h1>
+  
+
+        
+        <a href="/2019/02/05/nsq源码/" class="archive-article-date">
+  	<time datetime="2019-02-04T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-02-05</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="nsq源码分析（包括功能分析以及并发编程的分析）"><a href="#nsq源码分析（包括功能分析以及并发编程的分析）" class="headerlink" title="nsq源码分析（包括功能分析以及并发编程的分析）"></a>nsq源码分析（包括功能分析以及并发编程的分析）</h1><blockquote>
+<p><em>因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表</em></p>
+</blockquote>
+        
+      
+      
+      
+        <div class="declare" hidden="hidden"></div>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Golang</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/02/05/nsq源码/">Read More >></a>
         </p>
       
 
@@ -722,14 +731,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
               </li>
              
@@ -743,6 +744,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
             
             <div class="clearfix"></div>

@@ -8,23 +8,23 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>NSQ | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
+  <meta name="description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="NSQ">
 <meta property="og:url" content="http://yoursite.com/2019/02/05/nsq源码/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
+<meta property="og:description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/nsq.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/nsq架构.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/svc.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/svc_detail.png">
 <meta property="og:image" content="http://yoursite.com/2019/02/05/nsq源码/svc2.png">
-<meta property="og:updated_time" content="2019-11-08T08:27:47.028Z">
+<meta property="og:updated_time" content="2019-11-19T11:21:01.768Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NSQ">
-<meta name="twitter:description" content="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
+<meta name="twitter:description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
 <meta name="twitter:image" content="http://yoursite.com/2019/02/05/nsq源码/nsq.png">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
@@ -177,19 +177,60 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）"><a href="#nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）" class="headerlink" title="nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）"></a>nsq源码分析（包括SVC，goroutine，channel等特性的使用和分析）</h1><blockquote>
+        <h1 id="nsq源码分析（包括功能分析以及并发编程的分析）"><a href="#nsq源码分析（包括功能分析以及并发编程的分析）" class="headerlink" title="nsq源码分析（包括功能分析以及并发编程的分析）"></a>nsq源码分析（包括功能分析以及并发编程的分析）</h1><blockquote>
 <p><em>因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表</em></p>
 </blockquote>
 <a id="more"></a>
 
-<h3 id="nsq功能：消息队列"><a href="#nsq功能：消息队列" class="headerlink" title="nsq功能：消息队列"></a>nsq功能：消息队列</h3><blockquote>
-<p>nsq是golang实现的mq，轻量，性能高效，架构原理也是比较简单，主要的核心概念有：</p>
+<h2 id="nsq功能：消息中间件"><a href="#nsq功能：消息中间件" class="headerlink" title="nsq功能：消息中间件"></a>nsq功能：消息中间件</h2><p><strong>消息队列是现在分布式系统中的重要组件，通过异步处理提高系统性能，降低耦合。</strong></p>
+<blockquote>
+<p>nsq是golang实现的分布式mq（也不能算是队列，<code>nsq不能保证有序</code>，所以是 <code>a realtime distributed messaging platform</code>），并且也基于MIT开源协议发布。轻量，性能高效，架构原理也是比较简单。根据nsq官方文档的描述，有以下几个features：</p>
 <ul>
-<li>Topic</li>
-<li>Channels</li>
-<li>Messages</li>
-<li>Nsqd</li>
-<li>NsqLookup</li>
+<li>distributed：nsq提升了没有单点故障的分布式和分散式拓扑，保证了消息的可靠传递</li>
+<li>scalable：nsq支持水平扩展，没有中心的brokers，支持pub-sub和load-balance的消息分发</li>
+<li>ops friendly：非常易于部署和配置，有一个管理界面nsqadmin，并且官方也有docker image</li>
+<li>integrated：提供了go(go-nsq)，python(pynsq)以及大多数主要语言的客户端库</li>
+</ul>
+</blockquote>
+<p><strong>适用于大规模系统中的实时消息服务，每天可以处理数亿级别的消息。</strong><br>主要的核心概念有：<br><strong>1. Topic：</strong><br>是生产者发布的逻辑key，第一次发布会被自动创建。详细分析备注见nsqd/topic.go。</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Topic <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// 64bit atomic vars need to be first for proper alignment on 32bit platforms</span></span><br><span class="line">	messageCount <span class="keyword">uint64</span> <span class="comment">// topic中的消息数目</span></span><br><span class="line">	messageBytes <span class="keyword">uint64</span></span><br><span class="line"></span><br><span class="line">	sync.RWMutex                            <span class="comment">// 读写锁</span></span><br><span class="line"></span><br><span class="line">	name              <span class="keyword">string</span>                <span class="comment">// topic的名字</span></span><br><span class="line">	channelMap        <span class="keyword">map</span>[<span class="keyword">string</span>]*Channel   <span class="comment">// topic对应的channel map</span></span><br><span class="line">	backend           BackendQueue          <span class="comment">// 二级策磁盘存储队列</span></span><br><span class="line">	memoryMsgChan     <span class="keyword">chan</span> *Message         <span class="comment">// 消息队列，当nsqd收到消息则写入</span></span><br><span class="line">	startChan         <span class="keyword">chan</span> <span class="keyword">int</span>              <span class="comment">// 启动chan</span></span><br><span class="line">	exitChan          <span class="keyword">chan</span> <span class="keyword">int</span>              <span class="comment">// 终止chan</span></span><br><span class="line">	channelUpdateChan <span class="keyword">chan</span> <span class="keyword">int</span>              <span class="comment">// topic对应的channelmap发生改变更新</span></span><br><span class="line">	waitGroup         util.WaitGroupWrapper <span class="comment">// 多个时间等待完成退出</span></span><br><span class="line">	exitFlag          <span class="keyword">int32</span>                 <span class="comment">// topic是否是准备退出</span></span><br><span class="line">	idFactory         *guidFactory          <span class="comment">// id生成工厂</span></span><br><span class="line"></span><br><span class="line">	ephemeral      <span class="keyword">bool</span>                     <span class="comment">// 是否临时，临时的topic不存入磁盘</span></span><br><span class="line">	deleteCallback <span class="function"><span class="keyword">func</span><span class="params">(*Topic)</span>             // 删除<span class="title">callback</span></span></span><br><span class="line"><span class="function">	<span class="title">deleter</span>        <span class="title">sync</span>.<span class="title">Once</span>                // 保证只执行一次</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">	<span class="title">paused</span>    <span class="title">int32</span>          // <span class="title">topic</span>是否暂停</span></span><br><span class="line"><span class="function">	<span class="title">pauseChan</span> <span class="title">chan</span> <span class="title">int</span>       // <span class="title">pause</span>回调</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">	<span class="title">ctx</span> *<span class="title">context</span>             // 上下文</span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>新建topic时就会放入一个messagePump()事件，当start更新startChan的通道后，就进入一个for select的循环，监听memoryMsgChan和backendChan是是否有消息传入，并把topic收到的消息下发给所有的channel，调用channel的putMessage，其实还包括更新channel，延迟消息放入等等，并且从消息发入通道时可以看到，当消息已经写入磁盘时，消息是无序的：</p>
+</blockquote>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main message loop</span></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;  <span class="comment">//使用 select监听两个chan是否有消息传入</span></span><br><span class="line">		<span class="comment">// 消息已经被写入磁盘的话，nsq 消费消息就是无序的，因为select的选择就是无序的</span></span><br><span class="line">		<span class="keyword">case</span> msg = &lt;-memoryMsgChan:</span><br><span class="line">		<span class="keyword">case</span> buf = &lt;-backendChan:</span><br><span class="line">			msg, err = decodeMessage(buf)</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				t.ctx.nsqd.logf(LOG_ERROR, <span class="string">"failed to decode message - %s"</span>, err)</span><br><span class="line">				<span class="keyword">continue</span></span><br><span class="line">			&#125;</span><br><span class="line">		<span class="keyword">case</span> &lt;-t.channelUpdate...........</span><br></pre></td></tr></table></figure>
+
+<p><strong>2. Channels</strong><br>是与消费者直接相关的，topic中的消息会被直接channel map中的所有channel，是消费者之间的负载均衡，具体分析备注见nsqd/channel.go</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Channel <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// 64bit atomic vars need to be first for proper alignment on 32bit platforms</span></span><br><span class="line">	requeueCount <span class="keyword">uint64</span>      <span class="comment">// 重新发送的消息数量</span></span><br><span class="line">	messageCount <span class="keyword">uint64</span>      <span class="comment">// channel中的消息总数</span></span><br><span class="line">	timeoutCount <span class="keyword">uint64</span>      <span class="comment">// 发送超时的消息数量</span></span><br><span class="line"></span><br><span class="line">	sync.RWMutex</span><br><span class="line"></span><br><span class="line">	topicName <span class="keyword">string</span>        <span class="comment">// topic名</span></span><br><span class="line">	name      <span class="keyword">string</span>        <span class="comment">// channel名</span></span><br><span class="line">	ctx       *context</span><br><span class="line"></span><br><span class="line">	backend BackendQueue     <span class="comment">// 二级存储</span></span><br><span class="line"></span><br><span class="line">	memoryMsgChan <span class="keyword">chan</span> *Message           <span class="comment">// channel的消息管道</span></span><br><span class="line">	exitFlag      <span class="keyword">int32</span></span><br><span class="line">	exitMutex     sync.RWMutex</span><br><span class="line"></span><br><span class="line">	<span class="comment">// state tracking</span></span><br><span class="line">	clients        <span class="keyword">map</span>[<span class="keyword">int64</span>]Consumer     <span class="comment">// 连接这个channel的消费者</span></span><br><span class="line">	paused         <span class="keyword">int32</span></span><br><span class="line">	ephemeral      <span class="keyword">bool</span></span><br><span class="line">	deleteCallback <span class="function"><span class="keyword">func</span><span class="params">(*Channel)</span></span></span><br><span class="line"><span class="function">	<span class="title">deleter</span>        <span class="title">sync</span>.<span class="title">Once</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">	// <span class="title">Stats</span> <span class="title">tracking</span></span></span><br><span class="line"><span class="function">	<span class="title">e2eProcessingLatencyStream</span> *<span class="title">quantile</span>.<span class="title">Quantile</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">	// 下面都是由优先级队列实现的</span></span><br><span class="line"><span class="function">	// 延迟消息投递，放入<span class="title">deferedPQ</span></span></span><br><span class="line"><span class="function">	// <span class="title">TODO</span>: <span class="title">these</span> <span class="title">can</span> <span class="title">be</span> <span class="title">DRYd</span> <span class="title">up</span></span></span><br><span class="line"><span class="function">	<span class="title">deferredMessages</span> <span class="title">map</span>[<span class="title">MessageID</span>]*<span class="title">pqueue</span>.<span class="title">Item</span></span></span><br><span class="line"><span class="function">	<span class="title">deferredPQ</span>       <span class="title">pqueue</span>.<span class="title">PriorityQueue</span></span></span><br><span class="line"><span class="function">	<span class="title">deferredMutex</span>    <span class="title">sync</span>.<span class="title">Mutex</span></span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">	// 正在发送中的消息记录，直到收到客户端的<span class="title">FIN</span>才会删除，否则<span class="title">timeout</span>就会有重传的问题</span></span><br><span class="line"><span class="function">	<span class="title">inFlightMessages</span> <span class="title">map</span>[<span class="title">MessageID</span>]*<span class="title">Message</span></span></span><br><span class="line"><span class="function">	<span class="title">inFlightPQ</span>       <span class="title">inFlightPqueue</span></span></span><br><span class="line"><span class="function">	<span class="title">inFlightMutex</span>    <span class="title">sync</span>.<span class="title">Mutex</span></span></span><br><span class="line"><span class="function">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>channel的整体架构创建实例之类的和topic类似，但是因为是直接发送消息给订阅者client的，所以需要一些重传机制和记忆，包括已发送队列和延迟发送队列。putmesage通过把收到的消息放入channel的memoryMsgChan中</li>
+<li>inFlightPQ已发送队列是一个<code>小根堆</code>，key是timeout时间，processInFlightQueue可用于重发超时的消息，当收到客户端的FIN时，才会从队列中删除</li>
+<li>deferredPQ延迟发送队列同样也是一个<code>小根堆</code>，根据应该被发送的时间排序\</li>
+</ul>
+</blockquote>
+<p><code>很明显channel这部分的似乎缺少了具体传递到消费者的操作，类似于topic中的messagePump，这部分是在nsqd中会有介绍。</code></p>
+<p><strong>3.Messages：</strong></p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MessageID [MsgIDLength]<span class="keyword">byte</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Message <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID        MessageID   <span class="comment">// 消息id</span></span><br><span class="line">	Body      []<span class="keyword">byte</span>      <span class="comment">// 消息体</span></span><br><span class="line">	Timestamp <span class="keyword">int64</span>       <span class="comment">// 产生的时间戳</span></span><br><span class="line">	Attempts  <span class="keyword">uint16</span>      <span class="comment">// 消息尝试发送的次数</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// for in-flight handling</span></span><br><span class="line">	deliveryTS time.Time   <span class="comment">// 发送的时间</span></span><br><span class="line">	clientID   <span class="keyword">int64</span>       <span class="comment">// 被消费的consumer</span></span><br><span class="line">	pri        <span class="keyword">int64</span>       <span class="comment">// 消息的timeout时间</span></span><br><span class="line">	index      <span class="keyword">int</span>         <span class="comment">// 在queue中的index</span></span><br><span class="line">	deferred   time.Duration    <span class="comment">// 消息的延迟发送的时间</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>message是数据流中传递的实体，在nsq中主要作为chan的类型在各种组件中同步并传递。在消费者中处理时，当消息传递超过一定的阈值次数，则放弃这些消息。</p>
+</blockquote>
+<p><strong>3. Nsqd：</strong><br>守护进程，负责接受、排队、投递消息，</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> NSQD <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// 64bit atomic vars need to be first for proper alignment on 32bit platforms</span></span><br><span class="line">	clientIDSequence <span class="keyword">int64</span>   <span class="comment">// 连接nsqd的client数量</span></span><br><span class="line"></span><br><span class="line">	sync.RWMutex</span><br><span class="line"></span><br><span class="line">	opts atomic.Value        <span class="comment">// nsqd配置文件</span></span><br><span class="line"></span><br><span class="line">	dl        *dirlock.DirLock   <span class="comment">// 文件锁</span></span><br><span class="line">	isLoading <span class="keyword">int32</span></span><br><span class="line">	errValue  atomic.Value</span><br><span class="line">	startTime time.Time</span><br><span class="line"></span><br><span class="line">	<span class="comment">// nsqd中的topic map</span></span><br><span class="line">	topicMap <span class="keyword">map</span>[<span class="keyword">string</span>]*Topic   <span class="comment">// topicMap</span></span><br><span class="line"></span><br><span class="line">	clientLock sync.RWMutex</span><br><span class="line">	<span class="comment">//</span></span><br><span class="line">	clients    <span class="keyword">map</span>[<span class="keyword">int64</span>]Client</span><br><span class="line"></span><br><span class="line">	lookupPeers atomic.Value</span><br><span class="line"></span><br><span class="line">	tcpListener   net.Listener    <span class="comment">// tcp监听</span></span><br><span class="line">	httpListener  net.Listener    <span class="comment">// http监听</span></span><br><span class="line">	httpsListener net.Listener    <span class="comment">// https监听</span></span><br><span class="line">	tlsConfig     *tls.Config     <span class="comment">// tls配置</span></span><br><span class="line"></span><br><span class="line">	poolSize <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line">	notifyChan           <span class="keyword">chan</span> <span class="keyword">interface</span>&#123;&#125;   <span class="comment">// 修改topic/chan的时候通知lookup</span></span><br><span class="line">	optsNotificationChan <span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">	exitChan             <span class="keyword">chan</span> <span class="keyword">int</span></span><br><span class="line">	waitGroup            util.WaitGroupWrapper    <span class="comment">//一组goroutine执行完成再退出</span></span><br><span class="line"></span><br><span class="line">	ci *clusterinfo.ClusterInfo</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>nsqd中开启的gorotine有：</p>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 	确保所有的goroutine都运行完毕</span></span><br><span class="line">	<span class="comment">// tcpserver的建立</span></span><br><span class="line">	tcpServer := &amp;tcpServer&#123;ctx: ctx&#125;</span><br><span class="line">	n.waitGroup.Wrap(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		exitFunc(protocol.TCPServer(n.tcpListener, tcpServer, n.logf))</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="comment">// httpsever的建立</span></span><br><span class="line">	httpServer := newHTTPServer(ctx, <span class="literal">false</span>, n.getOpts().TLSRequired == TLSRequired)</span><br><span class="line">	n.waitGroup.Wrap(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		exitFunc(http_api.Serve(n.httpListener, httpServer, <span class="string">"HTTP"</span>, n.logf))</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> n.tlsConfig != <span class="literal">nil</span> &amp;&amp; n.getOpts().HTTPSAddress != <span class="string">""</span> &#123;</span><br><span class="line">		<span class="comment">// 都是用newHTTPServer，只是多了个tls层</span></span><br><span class="line">		httpsServer := newHTTPServer(ctx, <span class="literal">true</span>, <span class="literal">true</span>)</span><br><span class="line">		n.waitGroup.Wrap(<span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			exitFunc(http_api.Serve(n.httpsListener, httpsServer, <span class="string">"HTTPS"</span>, n.logf))</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 队列scan扫描协程</span></span><br><span class="line">	n.waitGroup.Wrap(n.queueScanLoop)</span><br><span class="line">	<span class="comment">// lookup查找协程</span></span><br><span class="line">	n.waitGroup.Wrap(n.lookupLoop)</span><br><span class="line">	<span class="keyword">if</span> n.getOpts().StatsdAddress != <span class="string">""</span> &#123;</span><br><span class="line">		n.waitGroup.Wrap(n.statsdLoop)</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<ul>
+<li>nsqd启动时会从本地导入上一次close时存入的metadata</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>NsqLookup：管理拓扑信息，</li>
 </ul>
 </blockquote>
 <div align="center">
@@ -303,18 +344,18 @@
   
 <nav id="article-nav">
   
-    <a href="/2019/04/01/逃逸分析/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/02/05/context/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          golang的逃逸分析
+          golang的context深入理解
         
       </div>
     </a>
   
   
-    <a href="/2019/02/05/context/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">golang的context深入理解</div>
+    <a href="/2019/02/02/gopath/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">GOPATH &amp;&amp; GOVENDOR &amp;&amp; GOMODULE</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -434,14 +475,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
               </li>
              
@@ -455,6 +488,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
             
             <div class="clearfix"></div>

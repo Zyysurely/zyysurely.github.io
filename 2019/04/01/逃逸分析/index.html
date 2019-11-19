@@ -8,18 +8,18 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>golang的逃逸分析 | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="golang的逃逸分析">
+  <meta name="description" content="golang的逃逸分析 顺便在分析中深入理解了golang的内存模型  在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。  在golang中，在一定程度上消除了堆和栈的区别，在编译">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="golang的逃逸分析">
 <meta property="og:url" content="http://yoursite.com/2019/04/01/逃逸分析/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="golang的逃逸分析">
+<meta property="og:description" content="golang的逃逸分析 顺便在分析中深入理解了golang的内存模型  在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。  在golang中，在一定程度上消除了堆和栈的区别，在编译">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-11-13T08:07:45.044Z">
+<meta property="og:updated_time" content="2019-11-18T10:25:00.474Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang的逃逸分析">
-<meta name="twitter:description" content="golang的逃逸分析">
+<meta name="twitter:description" content="golang的逃逸分析 顺便在分析中深入理解了golang的内存模型  在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。  在golang中，在一定程度上消除了堆和栈的区别，在编译">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
   
@@ -171,7 +171,16 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="golang的逃逸分析"><a href="#golang的逃逸分析" class="headerlink" title="golang的逃逸分析"></a>golang的逃逸分析</h1>
+        <h1 id="golang的逃逸分析"><a href="#golang的逃逸分析" class="headerlink" title="golang的逃逸分析"></a>golang的逃逸分析</h1><blockquote>
+<p><em>顺便在分析中深入理解了golang的内存模型</em></p>
+</blockquote>
+<p>在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。<br>栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。</p>
+<ul>
+<li><p>在golang中，在一定程度上消除了堆和栈的区别，在编译的时候编译器会根据逃逸分析来决定一个对象放在堆上还是栈上，不逃逸的对象直接放在栈上，加快分配，并且减少gc的压力</p>
+</li>
+<li></li>
+</ul>
+
       
       
       
@@ -285,8 +294,8 @@
     </a>
   
   
-    <a href="/2019/02/05/nsq源码/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">NSQ</div>
+    <a href="/2019/02/05/context/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">golang的context深入理解</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -406,14 +415,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
               </li>
              
@@ -427,6 +428,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
             
             <div class="clearfix"></div>
