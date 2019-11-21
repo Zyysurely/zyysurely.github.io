@@ -8,18 +8,20 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>golang的逃逸分析 | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="golang的逃逸分析 顺便在分析中深入理解了golang的内存模型">
+  <meta name="description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="golang的逃逸分析">
 <meta property="og:url" content="http://yoursite.com/2019/04/01/逃逸分析/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="golang的逃逸分析 顺便在分析中深入理解了golang的内存模型">
+<meta property="og:description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-11-20T13:58:35.577Z">
+<meta property="og:image" content="http://yoursite.com/2019/04/01/逃逸分析/汇编.png">
+<meta property="og:updated_time" content="2019-11-21T14:18:18.739Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang的逃逸分析">
-<meta name="twitter:description" content="golang的逃逸分析 顺便在分析中深入理解了golang的内存模型">
+<meta name="twitter:description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力">
+<meta name="twitter:image" content="http://yoursite.com/2019/04/01/逃逸分析/汇编.png">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
   
@@ -172,17 +174,46 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="golang的逃逸分析"><a href="#golang的逃逸分析" class="headerlink" title="golang的逃逸分析"></a>golang的逃逸分析</h1><blockquote>
-<p><em>顺便在分析中深入理解了golang的内存模型</em></p>
+<p><em>在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力</em></p>
 </blockquote>
 <a id="more"></a>
-
-<p>在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。<br>栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。</p>
 <ul>
-<li><p>在golang中，在一定程度上消除了堆和栈的区别，在编译的时候编译器会根据逃逸分析来决定一个对象放在堆上还是栈上，不逃逸的对象直接放在栈上，加快分配，并且减少gc的压力</p>
-</li>
-<li></li>
+<li>在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。\</li>
+<li>栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。</li>
+<li>频繁申请堆内存堆gc的压力太大，并且申请分配的开销也比较大，动态分配还是产生一定的内存碎片</li>
 </ul>
+<blockquote>
+<ul>
+<li>在golang中，在一定程度上消除了堆和栈的区别，<code>在编译的时候编译器</code>会根据逃逸分析来决定一个对象放在堆上还是栈上，不逃逸的对象直接放在栈上，加快分配，并且减少gc的压力</li>
+<li>逃逸分析是一种确定指针动态范围的方法，当一个变量没有被其它地方（非局部）引用，就会分配到栈上，只要被引用了，就一定会被分配到栈上。<code>但是如果对象过大，无法放在栈上，也有可能会被分配到堆上</code>。</li>
+</ul>
+</blockquote>
+<h3 id="逃逸分析例子"><a href="#逃逸分析例子" class="headerlink" title="逃逸分析例子"></a>逃逸分析例子</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 打点格式</span></span><br><span class="line"><span class="keyword">type</span> LogMsgTrack <span class="keyword">struct</span> &#123;</span><br><span class="line">	MsgId      <span class="keyword">string</span> <span class="string">`json:"msg_id"`</span></span><br><span class="line">	Direction  <span class="keyword">int</span>    <span class="string">`json:"direction"`</span></span><br><span class="line">	UserId     <span class="keyword">string</span> <span class="string">`json:"user_id"`</span></span><br><span class="line">	ModuleName <span class="keyword">string</span> <span class="string">`json:"module_name"`</span></span><br><span class="line">	ModuleId   <span class="keyword">string</span> <span class="string">`json:"module_id"`</span></span><br><span class="line">	ToMsg      <span class="keyword">string</span> <span class="string">`json:"to_msg"`</span> </span><br><span class="line">	MsgTs      <span class="keyword">int64</span>  <span class="string">`json:"msg_ts"`</span></span><br><span class="line">	ChannelId  <span class="keyword">uint32</span> <span class="string">`json:"channel_id"`</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetTrackLog</span><span class="params">()</span> *<span class="title">LogMsgTrack</span></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;LogMsgTrack&#123;</span><br><span class="line">		ModuleName: <span class="string">"zyying"</span>,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 不采用sync.Pool时</span></span><br><span class="line">	a := GetTrackLog()</span><br><span class="line">	fmt.Println((*a).ModuleName)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>逃逸分析的结果是：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">go build -gcflags '-m -l' main.go                          </span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">command</span>-line-arguments</span></span><br><span class="line">./main.go:53:15: &amp;LogMsgTrack literal escapes to heap</span><br><span class="line">./main.go:60:18: (*a).ModuleName escapes to heap</span><br><span class="line">./main.go:60:13: main ... argument does not escape</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>咦？跟想象的不一样，log逃逸到堆上去了，再查看汇编代码：</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go tool compile -S main.go</span><br></pre></td></tr></table></figure>
+
+<div align="center">
+<img width="70%" height="80%" src="/2019/04/01/逃逸分析/汇编.png">
+</div>
+
+<blockquote>
+<p><code>红框中runtime.newobject()的调用的确逃逸到堆上去了</code>。根据相关说明显示，因为GetTrackLog()返回的是指针对象，引用被返回到方法之外了，所以编译器把对象分配到堆上了。修改一下：</p>
+</blockquote>
+<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetTrackLog</span><span class="params">()</span></span> &#123;</span><br><span class="line">	a := &amp;LogMsgTrack&#123;</span><br><span class="line">		ModuleName: <span class="string">"zyying"</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println((*a).ModuleName)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 不采用sync.Pool时</span></span><br><span class="line">	GetTrackLog()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>结果是:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">go build -gcflags '-m -l' main.go                                                               </span><br><span class="line"><span class="meta">#</span><span class="bash"> <span class="built_in">command</span>-line-arguments</span></span><br><span class="line">./main.go:55:18: (*a).ModuleName escapes to heap</span><br><span class="line">./main.go:53:15: GetTrackLog &amp;LogMsgTrack literal does not escape</span><br><span class="line">./main.go:55:13: GetTrackLog ... argument does not escape</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>又因为(*a).ModuleName逃逸到了堆上产生了疑问，只有这个发生了逃逸，问题应该是出在fmt的输出语句上，Println函数的形参是<code>interface{}</code>，编译时并不能确定具体类型所以会被分配到堆上。</p>
+</blockquote>
+<h3 id="好吧，总结还是老老实实用sync-pool把，减少gc压力，实现方式如下："><a href="#好吧，总结还是老老实实用sync-pool把，减少gc压力，实现方式如下：" class="headerlink" title="好吧，总结还是老老实实用sync.pool把，减少gc压力，实现方式如下："></a>好吧，总结还是老老实实用sync.pool把，减少gc压力，实现方式如下：</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">// 简化版的打点服务，只是为了逃逸分析测试</span></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"encoding/json"</span></span><br><span class="line">	<span class="string">"sync"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 临时对象池，减少gc压力</span></span><br><span class="line"><span class="keyword">var</span> trackerPool = &amp;sync.Pool&#123;</span><br><span class="line">	New: <span class="function"><span class="keyword">func</span><span class="params">()</span> <span class="title">interface</span></span>&#123;&#125; &#123;</span><br><span class="line">		<span class="keyword">return</span> &amp;LogMsgTrack&#123;&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 打点格式</span></span><br><span class="line"><span class="keyword">type</span> LogMsgTrack <span class="keyword">struct</span> &#123;</span><br><span class="line">	MsgId      <span class="keyword">string</span> <span class="string">`json:"msg_id"`</span></span><br><span class="line">	Direction  <span class="keyword">int</span>    <span class="string">`json:"direction"`</span></span><br><span class="line">	UserId     <span class="keyword">string</span> <span class="string">`json:"user_id"`</span></span><br><span class="line">	ModuleName <span class="keyword">string</span> <span class="string">`json:"module_name"`</span></span><br><span class="line">	ModuleId   <span class="keyword">string</span> <span class="string">`json:"module_id"`</span></span><br><span class="line">	ToMsg      <span class="keyword">string</span> <span class="string">`json:"to_msg"`</span> </span><br><span class="line">	MsgTs      <span class="keyword">int64</span>  <span class="string">`json:"msg_ts"`</span></span><br><span class="line">	ChannelId  <span class="keyword">uint32</span> <span class="string">`json:"channel_id"`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(track *LogMsgTrack)</span> <span class="title">GetTrackLog</span><span class="params">()</span> <span class="params">(<span class="keyword">string</span>, error)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 需要修改，因为拿过来的对象并不是初始化的，是会带有原来的记忆的</span></span><br><span class="line">	track.ModuleName = <span class="string">"test"</span></span><br><span class="line">	<span class="comment">// 转字符串日志</span></span><br><span class="line">	<span class="keyword">if</span> b, err := json.Marshal(track); err == <span class="literal">nil</span> &#123;</span><br><span class="line">		trackerPool.Put(track)</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">string</span>(b), <span class="literal">nil</span></span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">""</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetTracker</span><span class="params">()</span> *<span class="title">LogMsgTrack</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> trackerPool.Get().(*LogMsgTrack)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 不采用sync.Pool时</span></span><br><span class="line">	a := GetTracker()</span><br><span class="line">	a.GetTrackLog()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
       
       
@@ -429,15 +460,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">RL</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
             
             <div class="clearfix"></div>
