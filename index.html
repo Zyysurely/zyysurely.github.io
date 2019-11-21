@@ -258,13 +258,7 @@
         <h1 id="golang的逃逸分析"><a href="#golang的逃逸分析" class="headerlink" title="golang的逃逸分析"></a>golang的逃逸分析</h1><blockquote>
 <p><em>顺便在分析中深入理解了golang的内存模型</em></p>
 </blockquote>
-<p>在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。<br>栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。</p>
-<ul>
-<li><p>在golang中，在一定程度上消除了堆和栈的区别，在编译的时候编译器会根据逃逸分析来决定一个对象放在堆上还是栈上，不逃逸的对象直接放在栈上，加快分配，并且减少gc的压力</p>
-</li>
-<li></li>
-</ul>
-
+        
       
       
       
@@ -739,19 +733,19 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">RL</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Golang</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">RL</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">python</a>
               </li>
             
             <div class="clearfix"></div>
