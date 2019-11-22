@@ -8,18 +8,18 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>golang的context深入理解 | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="golang的context包 在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。   在golang 1.7的版本把context加入了标准库中，而不是之前的包”golang.org/x/net/context”，所以在这之后的版本直接import即可。 context">
+  <meta name="description" content="golang的context包 在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="golang的context深入理解">
 <meta property="og:url" content="http://yoursite.com/2019/09/05/context/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="golang的context包 在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。   在golang 1.7的版本把context加入了标准库中，而不是之前的包”golang.org/x/net/context”，所以在这之后的版本直接import即可。 context">
+<meta property="og:description" content="golang的context包 在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-11-22T13:45:34.376Z">
+<meta property="og:updated_time" content="2019-11-22T13:46:51.650Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang的context深入理解">
-<meta name="twitter:description" content="golang的context包 在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。   在golang 1.7的版本把context加入了标准库中，而不是之前的包”golang.org/x/net/context”，所以在这之后的版本直接import即可。 context">
+<meta name="twitter:description" content="golang的context包 在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
   
@@ -174,6 +174,8 @@
         <h1 id="golang的context包"><a href="#golang的context包" class="headerlink" title="golang的context包"></a>golang的context包</h1><blockquote>
 <p><em>在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。</em></p>
 </blockquote>
+<a id="more"></a>
+
 <ul>
 <li>在golang 1.7的版本把context加入了标准库中，而不是之前的包”golang.org/x/net/context”，所以在这之后的版本直接import即可。</li>
 <li>context最常用的功能是：<ul>
@@ -431,11 +433,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -447,7 +445,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
+                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
             
             <div class="clearfix"></div>

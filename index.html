@@ -175,34 +175,7 @@
         <h1 id="golang的context包"><a href="#golang的context包" class="headerlink" title="golang的context包"></a>golang的context包</h1><blockquote>
 <p><em>在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。</em></p>
 </blockquote>
-<ul>
-<li>在golang 1.7的版本把context加入了标准库中，而不是之前的包”golang.org/x/net/context”，所以在这之后的版本直接import即可。</li>
-<li>context最常用的功能是：<ul>
-<li>一个请求对应的多个goroutine之间的交互</li>
-<li>超时、取消</li>
-<li>上下文<br>特别是服务端开发时，对于一个request的处理也可能在多个goroutine之间，使用context可以方便传递request相关数据，或者取消信号和超时信号<h3 id="context的结构（具体看具体）"><a href="#context的结构（具体看具体）" class="headerlink" title="context的结构（具体看具体）"></a>context的结构（具体看具体）</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Context <span class="keyword">interface</span> &#123;</span><br><span class="line">    <span class="comment">// 返回time.Time，表示当前context应该结束的时间，当没有deadline设定的时候，ok是false的</span></span><br><span class="line">    Deadline() (deadline time.Time, ok <span class="keyword">bool</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当context被取消或者删除的时候返回了一个close的channel，这个可以广播通知，告诉context相关的函数要停止当前的工作</span></span><br><span class="line">    Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 取消的原因，具体可看源码注视</span></span><br><span class="line">    Err() error</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// context实现共享数据存储，是协程安全的，context相关的数据</span></span><br><span class="line">	Value(key <span class="keyword">interface</span>&#123;&#125;) <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-</li>
-</ul>
-<p>根据这个接口，同时嵌入实现了多种context，如emptyCtx、cancelCtx、timerCtx、valueCtx：</p>
-<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A cancelCtx can be canceled. When canceled, it also cancels any children</span></span><br><span class="line"><span class="comment">// that implement canceler.</span></span><br><span class="line"><span class="keyword">type</span> cancelCtx <span class="keyword">struct</span> &#123;</span><br><span class="line">	Context</span><br><span class="line"></span><br><span class="line">	mu       sync.Mutex            <span class="comment">// protects following fields</span></span><br><span class="line">	done     <span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;         <span class="comment">// created lazily, closed by first cancel call</span></span><br><span class="line">	children <span class="keyword">map</span>[canceler]<span class="keyword">struct</span>&#123;&#125; <span class="comment">// set to nil by the first cancel call</span></span><br><span class="line">	err      error                 <span class="comment">// set to non-nil by the first cancel call</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>提供了context.Background()作为根节点，返回的是emptyCtx，这个是root不能被取消，因为它的所有函数都是return nil</p>
-</blockquote>
-<h3 id="context使用方式"><a href="#context使用方式" class="headerlink" title="context使用方式"></a>context使用方式</h3><p>1.取消，关闭c.done，遍历所有的children分别cancel</p>
-<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ctx, cancel := context.WithCancel(context.Background())</span><br><span class="line"><span class="comment">// 当父context done时，关闭自己的done，或者可以用cancel取消当前的context</span></span><br><span class="line">.......</span><br><span class="line">cancel() <span class="comment">// 也可以直接defer</span></span><br></pre></td></tr></table></figure>
-
-<p>2.超时，多少时间后自动取消</p>
-<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctx, cancel := context.WithTimeout(ctx, time.Second*<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
-
-<p>3.截止时间，扩展于WithCancel</p>
-<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">WithDeadline</span><span class="params">(parent Context, deadline time.Time)</span> <span class="params">(Context, CancelFunc)</span></span></span><br></pre></td></tr></table></figure>
-
-<p>4.上下文，可以用于日志追踪</p>
-<figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ctx := context.WithValue(context.Background(), <span class="string">"trace_id"</span>, <span class="string">"zyying"</span>)</span><br><span class="line">.......</span><br><span class="line"><span class="keyword">case</span> &lt;-ctx.Done(): traceID := ctx.Value(<span class="string">"trace_id"</span>).(<span class="keyword">string</span>)</span><br></pre></td></tr></table></figure>
+        
       
       
       
@@ -758,11 +731,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -774,7 +743,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
+                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
             
             <div class="clearfix"></div>
