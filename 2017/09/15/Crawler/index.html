@@ -8,19 +8,19 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>Crawler | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="音乐爬虫（关于批量爬取歌曲的可播放地址）  这是我大四的时候写的一篇关于爬虫的博客，当时放在csdn上，现在转移到博客里  AS A Start">
+  <meta name="description" content="音乐爬虫（关于批量爬取歌曲的可播放地址）  这是我大四的时候写的一篇关于爬虫的博客，当时放在csdn上，现在转移到博客里">
 <meta name="keywords" content="爬虫,Python">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Crawler">
 <meta property="og:url" content="http://yoursite.com/2017/09/15/Crawler/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="音乐爬虫（关于批量爬取歌曲的可播放地址）  这是我大四的时候写的一篇关于爬虫的博客，当时放在csdn上，现在转移到博客里  AS A Start">
+<meta property="og:description" content="音乐爬虫（关于批量爬取歌曲的可播放地址）  这是我大四的时候写的一篇关于爬虫的博客，当时放在csdn上，现在转移到博客里">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="https://imgconvert.csdnimg.cn/aHR0cDovL2ltZy5ibG9nLmNzZG4ubmV0LzIwMTcwOTE1MjEzMjMzMTMw?x-oss-process=image/format,png">
-<meta property="og:updated_time" content="2019-11-05T04:31:54.788Z">
+<meta property="og:updated_time" content="2019-11-21T14:19:13.285Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Crawler">
-<meta name="twitter:description" content="音乐爬虫（关于批量爬取歌曲的可播放地址）  这是我大四的时候写的一篇关于爬虫的博客，当时放在csdn上，现在转移到博客里  AS A Start">
+<meta name="twitter:description" content="音乐爬虫（关于批量爬取歌曲的可播放地址）  这是我大四的时候写的一篇关于爬虫的博客，当时放在csdn上，现在转移到博客里">
 <meta name="twitter:image" content="https://imgconvert.csdnimg.cn/aHR0cDovL2ltZy5ibG9nLmNzZG4ubmV0LzIwMTcwOTE1MjEzMjMzMTMw?x-oss-process=image/format,png">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
@@ -177,8 +177,9 @@
 <blockquote>
 <p>这是我大四的时候写的一篇关于爬虫的博客，当时放在csdn上，现在转移到博客里</p>
 </blockquote>
-<h2 id="AS-A-Start"><a href="#AS-A-Start" class="headerlink" title="AS A Start"></a>AS A Start</h2><a id="more"></a>
-<ul>
+<a id="more"></a>
+
+<h2 id="AS-A-Start"><a href="#AS-A-Start" class="headerlink" title="AS A Start"></a>AS A Start</h2><ul>
 <li><em>这是我自己第一次写博客，现在处在在大四开始的阶段，对自己需要做的事情有很多的不确定和迷茫，加上自己大三暑假在实验室有真正意义上接触一些项目课题（虽然最后也没有进那个组），但是真的也会学到了很多（这里还是要提一下，只有在自己真正把书本上的东西带入使用中，可能觉得才是真正意义上地进入了计算机这个专业吧），写博客的原因也是想对自己做的东西做一个整理，想在自言自语中总结自己的摸索过程，在选择博客上，一开始是想用hexo+github搭建个人博客，看了几个别人的个人博客，风格的确是很吸引人，但是搭了一下午也没在linux上搭建成功（应该是nodejs和npm管理版本的不匹配问题），所以也是先在CSDN上编写，等到后面有时间再继续搭建。</em></li>
 </ul>
 <h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>  这篇主要讲的是一个比较简单的爬虫脚本，其实在写这份代码之前我因为研究课题的原因做了半个月的微博爬虫，所以写起来也是比较快。用于我的数据库小学期的数据源，小学期的课程作业是搭建一个B/S结构的数据库管理系统，我们组想要做的是一个类似于酷狗音乐之类的音乐播放网站（包括个性推荐和个人搜索播放等），首先就是得建立歌曲的数据库，一开始的想法也是下载歌曲放在文件系统的某一个目录下，用路径作为歌曲播放标识，但是在做爬虫下载时发现现在的音乐网站（包括网易云等）都是需要下载客户端才可以下载歌曲的，这个时候在分析抓取的网页标签时发现了每个歌曲的标签下带着纯播放地址，这样就想到了直接用audio标签链接源音乐播放地址，这样也不需要下载歌曲占用存储空间，一举两得。</p>
@@ -299,11 +300,11 @@
   
 <nav id="article-nav">
   
-    <a href="/2019/02/02/gopath/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2018/10/30/greedy-snake/" id="article-nav-newer" class="article-nav-link-wrap">
       <i class="icon-circle-left"></i>
       <div class="article-nav-title">
         
-          GOPATH &amp;&amp; GOVENDOR &amp;&amp; GOMODULE
+          GreedySnake
         
       </div>
     </a>
@@ -437,15 +438,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">RL</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
             
             <div class="clearfix"></div>
