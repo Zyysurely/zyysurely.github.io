@@ -8,19 +8,19 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>golang的逃逸分析 | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力">
+  <meta name="description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力。">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="golang的逃逸分析">
 <meta property="og:url" content="http://yoursite.com/2019/03/01/逃逸分析/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力">
+<meta property="og:description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力。">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http://yoursite.com/2019/03/01/逃逸分析/汇编.png">
-<meta property="og:updated_time" content="2019-11-22T12:38:39.524Z">
+<meta property="og:updated_time" content="2019-11-23T13:50:59.814Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang的逃逸分析">
-<meta name="twitter:description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力">
+<meta name="twitter:description" content="golang的逃逸分析 在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力。">
 <meta name="twitter:image" content="http://yoursite.com/2019/03/01/逃逸分析/汇编.png">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
@@ -174,11 +174,11 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="golang的逃逸分析"><a href="#golang的逃逸分析" class="headerlink" title="golang的逃逸分析"></a>golang的逃逸分析</h1><blockquote>
-<p><em>在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力</em></p>
+<p><em>在实现一个高频的打点服务时，考虑是否需要加上sync.pool作为临时对象池，在确定的时候做了逃逸分析，分析是否需要加上pool来缓解gc压力。</em></p>
 </blockquote>
 <a id="more"></a>
 <ul>
-<li>在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。\</li>
+<li>在大多数语言的内存模型中，比如在Java中，分为堆和栈，将基本的类型的局部字面量存储在程序栈中以及对象的引用，new出的对象建立的存储在堆中，堆中数据的生存周期通过GC处理。</li>
 <li>栈的存取数据比堆中快，速度仅次于cpu中的寄存器，但是数据大小和生命周期是确定的，缺少灵活性。</li>
 <li>频繁申请堆内存堆gc的压力太大，并且申请分配的开销也比较大，动态分配还是产生一定的内存碎片</li>
 </ul>
@@ -452,6 +452,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
              
@@ -461,14 +469,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
             
             <div class="clearfix"></div>

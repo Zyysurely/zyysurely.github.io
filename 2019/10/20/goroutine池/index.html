@@ -6,19 +6,20 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <link rel="dns-prefetch" href="http://yoursite.com">
-  <title>Archives: 2017 | Step by step</title>
+  <title>goroutine池 | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="爱技术，爱尝试，兴趣驱动成长。">
-<meta name="keywords" content="RL, golang, java">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Step by step">
-<meta property="og:url" content="http://yoursite.com/archives/2017/index.html">
+  <meta name="description" content="高并发情况下可重用的goroutine池 在理解goroutine底层实现和调度器原理时，每个goroutine退出时会被加入到调度器的自由G列表，在新建一个goroutine时，自由G中可以重用，但是在服务器并发量特别大的时候（暂时不考虑负载均衡之类的解决办法，毕竟这个是需要机器为代价的），特别是对于比较耗时的重任务，调度goroutine启动的代价仍然是不得不忽视的情况，并也是需要不停地申请和">
+<meta name="keywords" content="Golang">
+<meta property="og:type" content="article">
+<meta property="og:title" content="goroutine池">
+<meta property="og:url" content="http://yoursite.com/2019/10/20/goroutine池/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="爱技术，爱尝试，兴趣驱动成长。">
+<meta property="og:description" content="高并发情况下可重用的goroutine池 在理解goroutine底层实现和调度器原理时，每个goroutine退出时会被加入到调度器的自由G列表，在新建一个goroutine时，自由G中可以重用，但是在服务器并发量特别大的时候（暂时不考虑负载均衡之类的解决办法，毕竟这个是需要机器为代价的），特别是对于比较耗时的重任务，调度goroutine启动的代价仍然是不得不忽视的情况，并也是需要不停地申请和">
 <meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-11-27T12:37:14.594Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Step by step">
-<meta name="twitter:description" content="爱技术，爱尝试，兴趣驱动成长。">
+<meta name="twitter:title" content="goroutine池">
+<meta name="twitter:description" content="高并发情况下可重用的goroutine池 在理解goroutine底层实现和调度器原理时，每个goroutine退出时会被加入到调度器的自由G列表，在新建一个goroutine时，自由G中可以重用，但是在服务器并发量特别大的时候（暂时不考虑负载均衡之类的解决办法，毕竟这个是需要机器为代价的），特别是对于比较耗时的重任务，调度goroutine启动的代价仍然是不得不忽视的情况，并也是需要不停地申请和">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
   
@@ -150,65 +151,178 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-goroutine池" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2017" class="archive-year">2017</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2017/09/15/Crawler/" class="archive-article-date">
-  	<time datetime="2017-09-14T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-09-15</time>
-</a>
-        </div>
-    	 
+      <header class="article-header">
+        
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2017/09/15/Crawler/">Crawler</a>
+    <h1 class="article-title" itemprop="name">
+      goroutine池
     </h1>
   
 
-        <div class="article-info info-on-right">
+        
+        <a href="/2019/10/20/goroutine池/" class="archive-article-date">
+  	<time datetime="2019-10-19T16:00:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2019-10-20</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="高并发情况下可重用的goroutine池"><a href="#高并发情况下可重用的goroutine池" class="headerlink" title="高并发情况下可重用的goroutine池"></a>高并发情况下可重用的goroutine池</h1><blockquote>
+<p><em>在理解goroutine底层实现和调度器原理时，每个goroutine退出时会被加入到调度器的自由G列表，在新建一个goroutine时，自由G中可以重用，但是在服务器并发量特别大的时候（暂时不考虑负载均衡之类的解决办法，毕竟这个是需要机器为代价的），特别是对于比较耗时的重任务，调度goroutine启动的代价仍然是不得不忽视的情况，并也是需要不停地申请和调度。虽然golang说的是百万级并发（with轻量级G的启用），但是在处于高并发环境下还是需要更多的考虑。</em></p>
+</blockquote>
+<a id="more"></a>
+<p>对于对象池重用，golang中已经提供了sync.pool(给每个相关联的P分配一个对象池)<br><strong>go调度器的底层并不支持限制goroutine的数量（这个控制也不应该是语言层面上控制的问题，go只是通过MPG模型提供了轻量级的用户线程，并提供了复用控制），所以对于瞬时的大流量问题会有大规模的goroutine爆炸，调度器来不及复用从而创建了大量的goroutine导致有性能问题。</strong><br>这个时候可能会有这个疑问，控制数量不是直接可以用channel缓存控制数量。但是仔细想一下，这样只是延后问题而已，缓冲区会很快被打满堵塞，并不能复用，用这种缓冲队列救不了🔥。</p>
+<h2 id="池分析"><a href="#池分析" class="headerlink" title="池分析"></a>池分析</h2><p>goroutine池里的goroutine需要的是channel进行阻塞</p>
+<blockquote>
+<p>在自己写了个小demo之后，在查看相关实现时，看到这个下面这个<br><a href="https://github.com/panjf2000/ants" target="_blank" rel="noopener">https://github.com/panjf2000/ants</a> <br><a href="https://zhuanlan.zhihu.com/p/37754274" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/37754274</a></p>
+</blockquote>
+<h2 id="写在最后（与java的对比）"><a href="#写在最后（与java的对比）" class="headerlink" title="写在最后（与java的对比）"></a>写在最后（与java的对比）</h2><blockquote>
+<p>最近在学习Java，顺便将golang中的协程池与java中成熟的线程池做一下对比。</p>
+</blockquote>
+
+      
+      
+      
+        <div class="declare">
+          <strong>本文作者：</strong>
           
+            Zyying
+          
+          <br>
+          <!-- <strong>本文链接：</strong>
+          http://yoursite.com/2019/10/20/goroutine池/
+          <br> -->
+          <strong>版权声明：</strong>
+          本作品采用
+          <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议</a>
+          进行许可。转载请注明出处！
+          
+            <br>
+            <a rel="license" href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="知识共享许可协议" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png"/></a>
+          
+        </div>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">爬虫</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Python</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Golang</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=http://yoursite.com/2019/10/20/goroutine池/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
+  
+<nav id="article-nav">
   
   
-    </div></section>
+    <a href="/2019/09/05/context/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">golang的context深入理解</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+  
+  
   
 
-    
+  
 
+  
+
+  
 
           </div>
         </div>
@@ -230,8 +344,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

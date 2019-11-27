@@ -8,23 +8,23 @@
   <link rel="dns-prefetch" href="http://yoursite.com">
   <title>NSQ | Step by step</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
+  <meta name="description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表。">
 <meta name="keywords" content="Golang">
 <meta property="og:type" content="article">
 <meta property="og:title" content="NSQ">
 <meta property="og:url" content="http://yoursite.com/2019/04/05/nsq源码/index.html">
 <meta property="og:site_name" content="Step by step">
-<meta property="og:description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
+<meta property="og:description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表。">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http://yoursite.com/2019/04/05/nsq源码/nsq架构.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/05/nsq源码/nsq_code.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/05/nsq源码/svc.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/05/nsq源码/svc_detail.png">
 <meta property="og:image" content="http://yoursite.com/2019/04/05/nsq源码/svc2.png">
-<meta property="og:updated_time" content="2019-11-22T09:43:56.150Z">
+<meta property="og:updated_time" content="2019-11-22T13:54:18.770Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="NSQ">
-<meta name="twitter:description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表">
+<meta name="twitter:description" content="nsq源码分析（包括功能分析以及并发编程的分析） 因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表。">
 <meta name="twitter:image" content="http://yoursite.com/2019/04/05/nsq源码/nsq架构.png">
   
     <link rel="alternative" href="/atom.xml" title="Step by step" type="application/atom+xml">
@@ -178,7 +178,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="nsq源码分析（包括功能分析以及并发编程的分析）"><a href="#nsq源码分析（包括功能分析以及并发编程的分析）" class="headerlink" title="nsq源码分析（包括功能分析以及并发编程的分析）"></a>nsq源码分析（包括功能分析以及并发编程的分析）</h1><blockquote>
-<p><em>因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表</em></p>
+<p><em>因为实习的原因需要学习golang作为后台开发，在学习的过程了也逐渐感受到了golang语言的魅力。nsq源码分析也是作为golang学习不二的选择，代码精炼优雅，并充分利用了golang的语言特性。从另一方面说，nsq是作为golang学习的优秀源码代表。</em></p>
 </blockquote>
 <a id="more"></a>
 
@@ -605,6 +605,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
              
@@ -614,14 +622,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
             
             <div class="clearfix"></div>

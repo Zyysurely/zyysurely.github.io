@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Step by step">
 <meta property="og:description" content="golang的context包 在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-11-22T13:46:51.650Z">
+<meta property="og:updated_time" content="2019-11-23T13:50:46.479Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="golang的context深入理解">
 <meta name="twitter:description" content="golang的context包 在用golang编写复杂的服务功能时，特别是处理网络服务中的多个请求时，特别是对于单个请求的全链路排查，总是要把Context作为第一个参数，所以对context包做一个总结。">
@@ -181,7 +181,7 @@
 <li>context最常用的功能是：<ul>
 <li>一个请求对应的多个goroutine之间的交互</li>
 <li>超时、取消</li>
-<li>上下文<br>特别是服务端开发时，对于一个request的处理也可能在多个goroutine之间，使用context可以方便传递request相关数据，或者取消信号和超时信号<h3 id="context的结构（具体看具体）"><a href="#context的结构（具体看具体）" class="headerlink" title="context的结构（具体看具体）"></a>context的结构（具体看具体）</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Context <span class="keyword">interface</span> &#123;</span><br><span class="line">    <span class="comment">// 返回time.Time，表示当前context应该结束的时间，当没有deadline设定的时候，ok是false的</span></span><br><span class="line">    Deadline() (deadline time.Time, ok <span class="keyword">bool</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当context被取消或者删除的时候返回了一个close的channel，这个可以广播通知，告诉context相关的函数要停止当前的工作</span></span><br><span class="line">    Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 取消的原因，具体可看源码注视</span></span><br><span class="line">    Err() error</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// context实现共享数据存储，是协程安全的，context相关的数据</span></span><br><span class="line">	Value(key <span class="keyword">interface</span>&#123;&#125;) <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<li>上下文<br>特别是服务端开发时，对于一个request的处理也可能在多个goroutine之间，使用context可以方便传递request相关数据，或者取消信号和超时信号，因为如果request取消的话，所有的goroutine都应该立即停止并释放有关资源。并且context源码中有锁机制，都是线程安全的。<h3 id="context的结构（具体看具体）"><a href="#context的结构（具体看具体）" class="headerlink" title="context的结构（具体看具体）"></a>context的结构（具体看具体）</h3><figure class="highlight golang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Context <span class="keyword">interface</span> &#123;</span><br><span class="line">    <span class="comment">// 返回time.Time，表示当前context应该结束的时间，当没有deadline设定的时候，ok是false的</span></span><br><span class="line">    Deadline() (deadline time.Time, ok <span class="keyword">bool</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 当context被取消或者删除的时候返回了一个close的channel，这个可以广播通知，告诉context相关的函数要停止当前的工作</span></span><br><span class="line">    Done() &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 取消的原因，具体可看源码注视</span></span><br><span class="line">    Err() error</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// context实现共享数据存储，是协程安全的，context相关的数据</span></span><br><span class="line">	Value(key <span class="keyword">interface</span>&#123;&#125;) <span class="keyword">interface</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
@@ -306,6 +306,15 @@
 
   
 <nav id="article-nav">
+  
+    <a href="/2019/10/20/goroutine池/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          goroutine池
+        
+      </div>
+    </a>
   
   
     <a href="/2019/04/05/nsq源码/" id="article-nav-older" class="article-nav-link-wrap">
@@ -433,6 +442,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
              
@@ -442,14 +459,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
             
             <div class="clearfix"></div>
