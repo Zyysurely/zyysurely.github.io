@@ -16,7 +16,7 @@
 <meta property="og:site_name" content="Step by step">
 <meta property="og:description" content="高并发情况下可重用的goroutine池 在理解goroutine底层实现和调度器原理时，每个goroutine退出时会被加入到调度器的自由G列表，在新建一个goroutine时，自由G中可以重用，但是在服务器并发量特别大的时候（暂时不考虑负载均衡之类的解决办法，毕竟这个是需要机器为代价的），特别是对于比较耗时的重任务，调度goroutine启动的代价仍然是不得不忽视的情况，并也是需要不停地申请和">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-11-27T12:37:14.594Z">
+<meta property="og:updated_time" content="2019-11-28T05:34:58.975Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="goroutine池">
 <meta name="twitter:description" content="高并发情况下可重用的goroutine池 在理解goroutine底层实现和调度器原理时，每个goroutine退出时会被加入到调度器的自由G列表，在新建一个goroutine时，自由G中可以重用，但是在服务器并发量特别大的时候（暂时不考虑负载均衡之类的解决办法，毕竟这个是需要机器为代价的），特别是对于比较耗时的重任务，调度goroutine启动的代价仍然是不得不忽视的情况，并也是需要不停地申请和">
@@ -176,12 +176,12 @@
 </blockquote>
 <a id="more"></a>
 <p>对于对象池重用，golang中已经提供了sync.pool(给每个相关联的P分配一个对象池)<br><strong>go调度器的底层并不支持限制goroutine的数量（这个控制也不应该是语言层面上控制的问题，go只是通过MPG模型提供了轻量级的用户线程，并提供了复用控制），所以对于瞬时的大流量问题会有大规模的goroutine爆炸，调度器来不及复用从而创建了大量的goroutine导致有性能问题。</strong><br>这个时候可能会有这个疑问，控制数量不是直接可以用channel缓存控制数量。但是仔细想一下，这样只是延后问题而已，缓冲区会很快被打满堵塞，并不能复用，用这种缓冲队列救不了🔥。</p>
-<h2 id="池分析"><a href="#池分析" class="headerlink" title="池分析"></a>池分析</h2><p>goroutine池里的goroutine需要的是channel进行阻塞</p>
+<h2 id="池分析"><a href="#池分析" class="headerlink" title="池分析"></a>池分析</h2><p>goroutine池里的goroutine需要的是channel进行阻塞，分为task和worker两个概念，每个worker就是一个处于运行或者等待状态的goroutine，每个task也就是需要申请goroutine的任务，如果有可以重用的goroutine，</p>
 <blockquote>
-<p>在自己写了个小demo之后，在查看相关实现时，看到这个下面这个<br><a href="https://github.com/panjf2000/ants" target="_blank" rel="noopener">https://github.com/panjf2000/ants</a> <br><a href="https://zhuanlan.zhihu.com/p/37754274" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/37754274</a></p>
+<p>在自己实现了个小demo <br>代码见git —— <a href="https://github.com/Zyysurely/go-workpool" target="_blank"> [ goroutine池 ]</a> <br>之后，在查看相关实现时，看到这个下面这个，添加了定时清除机制的成熟goroutine池，可以通过get直接使用，推荐～～～～<br><a href="https://github.com/panjf2000/ants" target="_blank" rel="noopener">https://github.com/panjf2000/ants</a> <br><a href="https://zhuanlan.zhihu.com/p/37754274" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/37754274</a> <br><strong>我自己的实现是参考了</strong> <br><a href="http://marcio.io/2015/07/handling-1-million-requests-per-minute-with-golang/" target="_blank" rel="noopener">http://marcio.io/2015/07/handling-1-million-requests-per-minute-with-golang/</a> <br>这篇文章整体的递进过程还是非常实用的，不过也是比较老的了。</p>
 </blockquote>
 <h2 id="写在最后（与java的对比）"><a href="#写在最后（与java的对比）" class="headerlink" title="写在最后（与java的对比）"></a>写在最后（与java的对比）</h2><blockquote>
-<p>最近在学习Java，顺便将golang中的协程池与java中成熟的线程池做一下对比。</p>
+<p>最近在进一步学习Java，顺便将golang中的协程池与java中成熟的线程池做一下对比。<br>java中的thread与系统线程是一对一的状态，goroutine的</p>
 </blockquote>
 
       
@@ -409,10 +409,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
               </li>
              
@@ -421,7 +417,7 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
+                <a href="javascript:void(0)" class="js-tag color2">Golang</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -430,6 +426,10 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color5">版本控制</a>
               </li>
             
             <div class="clearfix"></div>
