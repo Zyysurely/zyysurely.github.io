@@ -173,7 +173,7 @@
     <div class="article-entry" itemprop="articleBody">
       
         <h1 id="高并发情况下可重用的goroutine池"><a href="#高并发情况下可重用的goroutine池" class="headerlink" title="高并发情况下可重用的goroutine池"></a>高并发情况下可重用的goroutine池</h1><blockquote>
-<p><em>在理解goroutine底层实现和调度器原理时，每个goroutine退出时会被加入到调度器的自由G列表，在新建一个goroutine时，自由G中可以重用，但是在服务器并发量特别大的时候（暂时不考虑负载均衡之类的解决办法，毕竟这个是需要机器为代价的），特别是对于比较耗时的重任务，调度goroutine启动的代价仍然是不得不忽视的情况，并也是需要不停地申请和调度。虽然golang说的是百万级并发（with轻量级G的启用），但是在处于高并发环境下还是需要更多的考虑。</em></p>
+<p><em>在理解goroutine底层实现和调度器原理时，每个goroutine退出时会被加入到调度器的自由G列表，在新建一个goroutine时，自由G中可以重用，但是在服务器并发量特别大的时候（暂时不考虑负载均衡之类的解决办法，毕竟这个是需要机器为代价的），特别是对于比较耗时的重任务，调度goroutine启动的代价仍然是不得不忽视的情况，并也是需要不停地申请和调度。虽然golang说的是百万级并发（with轻量级G的启用），但是在处于高并发环境下还是需要更多的考虑，是否会带来调度压力陡升，内存爆满的情况。</em></p>
 </blockquote>
         
       
@@ -728,7 +728,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2019 Zyying
+    		&copy; 2020 Zyying
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
@@ -806,14 +806,6 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">Python</a>
-              </li>
-             
-              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Golang</a>
               </li>
              
@@ -823,6 +815,14 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">python</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">爬虫</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color2">Python</a>
               </li>
              
               <li class="article-tag-list-item">
